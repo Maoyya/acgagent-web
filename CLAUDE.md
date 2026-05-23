@@ -110,6 +110,7 @@ ACG Agent 是一个 AI 视频创作工坊。用户输入故事梗概，AI 自动
 
 ## 开发规约
 
+- **禁止自动提交代码：** 不要执行 `git commit` 或 `git push`，所有代码变更由用户自行审查后提交
 - API 响应统一使用 `{code, message, data}` 信封格式，通过 `request.ts` 解包
 - Commit 消息使用约定式提交：`feat:`、`fix:`、`refactor:`、`chore:`
 - 功能开发在 `web_dev` 分支，稳定后合并到 `master`

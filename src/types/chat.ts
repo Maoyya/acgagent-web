@@ -10,9 +10,9 @@ export interface ConversationVO {
 export interface MessageVO {
   id: number
   conversationId: number
-  role: 'USER' | 'ASSISTANT'
+  role: 'user' | 'assistant'
   content: string
-  tokens: number
+  tokens: number | null
   createdAt: string
 }
 

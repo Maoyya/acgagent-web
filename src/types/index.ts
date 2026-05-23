@@ -7,3 +7,6 @@ export type {
   CreateConversationRequest,
   SendMessageRequest,
 } from './chat'
+export type { UserVO, CreateUserRequest, UpdateUserRequest } from './user'
+export type { RoleVO, CreateRoleRequest, UpdateRoleRequest } from './role'
+export type { PermissionVO, CreatePermissionRequest, UpdatePermissionRequest, PermissionTreeNode } from './permission'

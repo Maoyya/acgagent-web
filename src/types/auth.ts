@@ -12,6 +12,7 @@ export interface RegisterRequest {
 export interface TokenVO {
   accessToken: string
   refreshToken: string
+  expiresIn: number
 }
 
 export interface RefreshTokenRequest {

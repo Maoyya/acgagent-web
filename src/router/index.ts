@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import DefaultLayout from '@/layouts/DefaultLayout.vue'
+import AdminLayout from '@/layouts/AdminLayout.vue'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -18,13 +18,19 @@ const router = createRouter({
     },
     {
       path: '/',
-      component: DefaultLayout,
+      component: AdminLayout,
       meta: { requiresAuth: true },
       children: [
-        { path: '', name: 'Home', component: () => import('@/views/Home.vue') },
-        { path: 'project/create', name: 'CreateProject', component: () => import('@/views/project/Create.vue') },
-        { path: 'project/:id', name: 'Workshop', component: () => import('@/views/project/Workshop.vue') },
+        { path: '', redirect: '/dashboard' },
+        { path: 'dashboard', name: 'Dashboard', component: () => import('@/views/Dashboard.vue') },
+        { path: 'agents', name: 'Agents', component: () => import('@/views/agents/Index.vue') },
+        { path: 'chat', name: 'ChatList', component: () => import('@/views/chat/List.vue') },
+        { path: 'chat/:id', name: 'ChatDetail', component: () => import('@/views/chat/Detail.vue') },
+        { path: 'workshop/:id', name: 'Workshop', component: () => import('@/views/workshop/Index.vue') },
         { path: 'assets', name: 'Assets', component: () => import('@/views/assets/Index.vue') },
+        { path: 'system/users', name: 'Users', component: () => import('@/views/system/Users.vue') },
+        { path: 'system/roles', name: 'Roles', component: () => import('@/views/system/Roles.vue') },
+        { path: 'system/permissions', name: 'Permissions', component: () => import('@/views/system/Permissions.vue') },
       ],
     },
   ],
@@ -36,7 +42,7 @@ router.beforeEach((to) => {
     return { name: 'Login', query: { redirect: to.fullPath } }
   }
   if ((to.name === 'Login' || to.name === 'Register') && token) {
-    return { name: 'Home' }
+    return { name: 'Dashboard' }
   }
 })
 

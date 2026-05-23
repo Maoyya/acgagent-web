@@ -1,0 +1,27 @@
+@import './variables.css';
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap');
+
+:root {
+  --el-color-primary: #e94560;
+  --el-color-primary-light-3: #ff6b81;
+  --el-color-primary-light-5: #f0909f;
+  --el-color-primary-light-7: #f5b5bf;
+  --el-color-primary-light-9: #fde8eb;
+  --el-color-primary-dark-2: #bb384d;
+  --el-border-radius-base: 6px;
+  --el-border-radius-round: 20px;
+  --el-font-family: 'DM Sans', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'DM Sans', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  color: var(--color-text);
+  background: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+}

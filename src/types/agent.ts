@@ -1,22 +1,24 @@
 export interface AgentVO {
   id: number
   name: string
-  description: string
+  description: string | null
+  avatar: string | null
   apiUrl: string
   apiKey: string
   model: string
-  configJson: string
   status: number
+  configJson: string | null
   createdAt: string
   updatedAt: string
 }
 
 export interface CreateAgentRequest {
   name: string
-  description: string
+  description?: string
+  avatar?: string
   apiUrl: string
   apiKey: string
   model: string
-  configJson?: string
   status?: number
+  configJson?: string
 }

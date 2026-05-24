@@ -20,13 +20,9 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function register(data: RegisterRequest) {
-    const res = await registerApi(data)
-    const { accessToken: at, refreshToken: rt } = res.data.data
-    localStorage.setItem('accessToken', at)
-    localStorage.setItem('refreshToken', rt)
-    accessToken.value = at
-    refreshToken.value = rt
-    isLoggedIn.value = true
+    await registerApi(data)
+    // 注册接口只返回用户信息，不返回 Token，需要自动调用登录
+    await login({ username: data.username, password: data.password })
   }
 
   async function refresh() {

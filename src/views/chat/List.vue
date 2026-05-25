@@ -191,7 +191,7 @@ onMounted(async () => {
           <el-input
             v-model="newTitle"
             placeholder="可选，不填则自动生成"
-            maxlength="100"
+            maxlength="256"
             show-word-limit
           />
         </el-form-item>

@@ -77,11 +77,11 @@ const formData = ref(defaultFormData())
 const formRules = computed<FormRules>(() => ({
   name: [
     { required: true, message: '请输入角色名称', trigger: 'blur' },
-    { min: 2, max: 32, message: '角色名称长度为 2 ~ 32 个字符', trigger: 'blur' },
+    { max: 64, message: '角色名称长度不能超过 64 个字符', trigger: 'blur' },
   ],
   code: [
     { required: true, message: '请输入角色编码', trigger: 'blur' },
-    { pattern: /^[A-Z_]+$/, message: '编码仅允许大写字母和下划线', trigger: 'blur' },
+    { max: 64, message: '角色编码长度不能超过 64 个字符', trigger: 'blur' },
   ],
 }))
 
@@ -336,7 +336,7 @@ onMounted(() => {
           <el-input
             v-model="formData.name"
             placeholder="请输入角色名称"
-            maxlength="32"
+            maxlength="64"
             show-word-limit
           />
         </el-form-item>
@@ -368,7 +368,7 @@ onMounted(() => {
             type="textarea"
             placeholder="请输入备注"
             :rows="3"
-            maxlength="200"
+            maxlength="256"
             show-word-limit
           />
         </el-form-item>

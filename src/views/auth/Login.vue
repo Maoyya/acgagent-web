@@ -108,11 +108,15 @@ async function handleLogin() {
               </svg>
               用户名
             </label>
-            <el-form-item prop="username" :rules="[{ required: true, message: '请输入用户名' }]">
+            <el-form-item prop="username" :rules="[
+              { required: true, message: '请输入用户名' },
+              { min: 5, max: 50, message: '用户名长度为 5 ~ 50 个字符', trigger: 'blur' },
+            ]">
               <el-input
                 v-model="form.username"
                 placeholder="输入你的用户名"
                 size="large"
+                maxlength="50"
               />
             </el-form-item>
           </div>
@@ -125,13 +129,17 @@ async function handleLogin() {
               </svg>
               密码
             </label>
-            <el-form-item prop="password" :rules="[{ required: true, message: '请输入密码' }]">
+            <el-form-item prop="password" :rules="[
+              { required: true, message: '请输入密码' },
+              { min: 6, max: 256, message: '密码长度为 6 ~ 256 个字符', trigger: 'blur' },
+            ]">
               <el-input
                 v-model="form.password"
                 type="password"
                 placeholder="输入你的密码"
                 size="large"
                 show-password
+                maxlength="256"
               />
             </el-form-item>
           </div>

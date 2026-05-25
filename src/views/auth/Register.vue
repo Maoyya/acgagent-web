@@ -105,11 +105,15 @@ async function handleRegister() {
               </svg>
               用户名
             </label>
-            <el-form-item prop="username" :rules="[{ required: true, message: '请输入用户名' }]">
+            <el-form-item prop="username" :rules="[
+              { required: true, message: '请输入用户名' },
+              { min: 5, max: 50, message: '用户名长度为 5 ~ 50 个字符', trigger: 'blur' },
+            ]">
               <el-input
                 v-model="form.username"
                 placeholder="起一个独特的名字"
                 size="large"
+                maxlength="50"
               />
             </el-form-item>
           </div>
@@ -122,13 +126,17 @@ async function handleRegister() {
               </svg>
               密码
             </label>
-            <el-form-item prop="password" :rules="[{ required: true, message: '请输入密码' }]">
+            <el-form-item prop="password" :rules="[
+              { required: true, message: '请输入密码' },
+              { min: 6, max: 256, message: '密码长度为 6 ~ 256 个字符', trigger: 'blur' },
+            ]">
               <el-input
                 v-model="form.password"
                 type="password"
                 placeholder="设定你的密码"
                 size="large"
                 show-password
+                maxlength="256"
               />
             </el-form-item>
           </div>
@@ -141,11 +149,15 @@ async function handleRegister() {
               </svg>
               邮箱
             </label>
-            <el-form-item prop="email">
+            <el-form-item prop="email" :rules="[
+              { type: 'email', message: '请输入正确的邮箱格式', trigger: 'blur' },
+              { max: 128, message: '邮箱长度不能超过 128 个字符', trigger: 'blur' },
+            ]">
               <el-input
                 v-model="form.email"
                 placeholder="你的邮箱地址（选填）"
                 size="large"
+                maxlength="128"
               />
             </el-form-item>
           </div>

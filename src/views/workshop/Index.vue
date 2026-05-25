@@ -108,6 +108,8 @@ function prevStep() {
           :rows="8"
           placeholder="描述你的故事创意..."
           class="story-input"
+          maxlength="5000"
+          show-word-limit
         />
       </template>
 

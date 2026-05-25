@@ -23,6 +23,8 @@ function handleSubmit() {
       :disabled="disabled"
       placeholder="输入消息..."
       resize="none"
+      maxlength="32000"
+      show-word-limit
       @keydown.enter.exact.prevent="handleSubmit"
     />
     <el-button

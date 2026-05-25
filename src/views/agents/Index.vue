@@ -193,8 +193,11 @@ fetchAgents()
         label-width="100px"
         label-position="right"
       >
-        <el-form-item label="名称" prop="name" :rules="[{ required: true, message: '请输入名称' }]">
-          <el-input v-model="form.name" placeholder="请输入 Agent 名称" />
+        <el-form-item label="名称" prop="name" :rules="[
+          { required: true, message: '请输入名称' },
+          { max: 128, message: '名称长度不能超过 128 个字符', trigger: 'blur' },
+        ]">
+          <el-input v-model="form.name" placeholder="请输入 Agent 名称" maxlength="128" show-word-limit />
         </el-form-item>
         <el-form-item label="描述" prop="description">
           <el-input
@@ -202,21 +205,30 @@ fetchAgents()
             type="textarea"
             :rows="3"
             placeholder="请输入描述（可选）"
+            maxlength="512"
+            show-word-limit
           />
         </el-form-item>
-        <el-form-item label="API 地址" prop="apiUrl" :rules="[{ required: true, message: '请输入 API 地址' }]">
-          <el-input v-model="form.apiUrl" placeholder="https://api.example.com/v1" />
+        <el-form-item label="API 地址" prop="apiUrl" :rules="[
+          { required: true, message: '请输入 API 地址' },
+          { max: 512, message: 'API 地址长度不能超过 512 个字符', trigger: 'blur' },
+        ]">
+          <el-input v-model="form.apiUrl" placeholder="https://api.example.com/v1" maxlength="512" />
         </el-form-item>
         <el-form-item label="API Key" prop="apiKey">
           <el-input
             v-model="form.apiKey"
             type="password"
             show-password
-            :placeholder="editingId ? '******' : '请输入 API Key'"
+            :placeholder="editingId ? '不修改请留空' : '请输入 API Key'"
+            maxlength="512"
           />
         </el-form-item>
-        <el-form-item label="模型" prop="model" :rules="[{ required: true, message: '请输入模型名称' }]">
-          <el-input v-model="form.model" placeholder="gpt-4o" />
+        <el-form-item label="模型" prop="model" :rules="[
+          { required: true, message: '请输入模型名称' },
+          { max: 128, message: '模型名称长度不能超过 128 个字符', trigger: 'blur' },
+        ]">
+          <el-input v-model="form.model" placeholder="gpt-4o" maxlength="128" show-word-limit />
         </el-form-item>
         <el-form-item label="状态">
           <el-switch v-model="form.status" active-text="启用" inactive-text="禁用" />
@@ -227,6 +239,8 @@ fetchAgents()
             type="textarea"
             :rows="4"
             placeholder='{"temperature": 0.7}'
+            maxlength="5000"
+            show-word-limit
           />
         </el-form-item>
       </el-form>

@@ -34,9 +34,21 @@ const form = reactive({
 })
 
 const formRules: FormRules = {
-  name: [{ required: true, message: '请输入权限名称', trigger: 'blur' }],
-  code: [{ required: true, message: '请输入权限编码', trigger: 'blur' }],
+  name: [
+    { required: true, message: '请输入权限名称', trigger: 'blur' },
+    { max: 64, message: '权限名称长度不能超过 64 个字符', trigger: 'blur' },
+  ],
+  code: [
+    { required: true, message: '请输入权限编码', trigger: 'blur' },
+    { max: 128, message: '权限编码长度不能超过 128 个字符', trigger: 'blur' },
+  ],
   type: [{ required: true, message: '请选择权限类型', trigger: 'change' }],
+  path: [
+    { max: 256, message: '路径长度不能超过 256 个字符', trigger: 'blur' },
+  ],
+  icon: [
+    { max: 64, message: '图标名称长度不能超过 64 个字符', trigger: 'blur' },
+  ],
 }
 
 /** 将扁平列表转换为树形结构，parentId 为 0 视为根节点 */
@@ -271,10 +283,10 @@ onMounted(() => {
           />
         </el-form-item>
         <el-form-item label="权限名称" prop="name">
-          <el-input v-model="form.name" placeholder="请输入权限名称" />
+          <el-input v-model="form.name" placeholder="请输入权限名称" maxlength="64" show-word-limit />
         </el-form-item>
         <el-form-item label="权限编码" prop="code">
-          <el-input v-model="form.code" placeholder="请输入权限编码，如 system:user:list" />
+          <el-input v-model="form.code" placeholder="请输入权限编码，如 system:user:list" maxlength="128" show-word-limit />
         </el-form-item>
         <el-form-item label="权限类型" prop="type">
           <el-radio-group v-model="form.type">
@@ -283,10 +295,10 @@ onMounted(() => {
           </el-radio-group>
         </el-form-item>
         <el-form-item label="路径" prop="path">
-          <el-input v-model="form.path" placeholder="菜单路径，如 /system/users" />
+          <el-input v-model="form.path" placeholder="菜单路径，如 /system/users" maxlength="256" />
         </el-form-item>
         <el-form-item label="图标" prop="icon">
-          <el-input v-model="form.icon" placeholder="图标名称" />
+          <el-input v-model="form.icon" placeholder="图标名称" maxlength="64" />
         </el-form-item>
         <el-form-item label="排序" prop="sort">
           <el-input-number v-model="form.sort" :min="0" :max="9999" />

@@ -72,10 +72,17 @@ const formData = ref(defaultFormData())
 const formRules = computed<FormRules>(() => ({
   username: [
     { required: true, message: '请输入用户名', trigger: 'blur' },
-    { min: 2, max: 32, message: '用户名长度为 2 ~ 32 个字符', trigger: 'blur' },
+    { min: 5, max: 50, message: '用户名长度为 5 ~ 50 个字符', trigger: 'blur' },
+  ],
+  nickname: [
+    { max: 64, message: '昵称长度不能超过 64 个字符', trigger: 'blur' },
   ],
   email: [
     { type: 'email', message: '请输入正确的邮箱格式', trigger: 'blur' },
+    { max: 128, message: '邮箱长度不能超过 128 个字符', trigger: 'blur' },
+  ],
+  phone: [
+    { pattern: /^$|^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' },
   ],
 }))
 
@@ -329,18 +336,18 @@ onMounted(() => {
             v-model="formData.username"
             placeholder="请输入用户名"
             :disabled="dialogMode === 'edit'"
-            maxlength="32"
+            maxlength="50"
             show-word-limit
           />
         </el-form-item>
-        <el-form-item label="昵称">
-          <el-input v-model="formData.nickname" placeholder="请输入昵称" />
+        <el-form-item label="昵称" prop="nickname">
+          <el-input v-model="formData.nickname" placeholder="请输入昵称" maxlength="64" show-word-limit />
         </el-form-item>
         <el-form-item label="邮箱" prop="email">
-          <el-input v-model="formData.email" placeholder="请输入邮箱" />
+          <el-input v-model="formData.email" placeholder="请输入邮箱" maxlength="128" />
         </el-form-item>
-        <el-form-item label="手机">
-          <el-input v-model="formData.phone" placeholder="请输入手机号" />
+        <el-form-item label="手机" prop="phone">
+          <el-input v-model="formData.phone" placeholder="请输入手机号" maxlength="20" />
         </el-form-item>
         <el-form-item label="状态">
           <el-switch

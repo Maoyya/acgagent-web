@@ -1,0 +1,84 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - complementary [ref=e4]:
+      - generic [ref=e6] [cursor=pointer]: ACG Agent
+      - menubar [ref=e7]:
+        - menuitem "概览" [ref=e8] [cursor=pointer]:
+          - img [ref=e10]
+          - text: 概览
+        - menuitem "Agent" [ref=e14] [cursor=pointer]:
+          - img [ref=e16]
+          - text: Agent
+        - menuitem "对话" [ref=e18] [cursor=pointer]:
+          - img [ref=e20]
+          - text: 对话
+        - separator [ref=e23]
+        - menuitem "创作工坊" [ref=e24] [cursor=pointer]:
+          - img [ref=e26]
+          - text: 创作工坊
+        - menuitem "素材库" [ref=e29] [cursor=pointer]:
+          - img [ref=e31]
+          - text: 素材库
+        - separator [ref=e33]
+        - menuitem "系统管理" [ref=e34]:
+          - generic [ref=e35] [cursor=pointer]:
+            - img [ref=e37]
+            - generic [ref=e39]: 系统管理
+            - img [ref=e41]
+    - generic [ref=e43]:
+      - generic [ref=e44]:
+        - img [ref=e47] [cursor=pointer]
+        - button "U" [ref=e51] [cursor=pointer]:
+          - generic [ref=e52]: U
+          - img [ref=e54]
+      - main [ref=e57]:
+        - generic [ref=e58]:
+          - generic [ref=e64]:
+            - generic [ref=e65]:
+              - heading "创造你的 AI 影像世界" [level=1] [ref=e66]:
+                - generic [ref=e67]: 创造你的
+                - generic [ref=e68]: AI 影像世界
+              - paragraph [ref=e69]: 从故事梗概到成片输出，AI 全流程辅助创作
+            - generic [ref=e70]:
+              - generic [ref=e71]:
+                - generic [ref=e72]: 0个
+                - generic [ref=e73]: Agent
+              - generic [ref=e74]:
+                - generic [ref=e75]: 0条
+                - generic [ref=e76]: 对话
+              - generic [ref=e77]:
+                - generic [ref=e78]: 0活跃
+                - generic [ref=e79]: 今日
+          - generic [ref=e80]:
+            - generic [ref=e81]:
+              - heading "快速开始" [level=2] [ref=e82]
+              - generic [ref=e83]: 选择一个入口开始创作
+            - generic [ref=e84]:
+              - generic [ref=e87] [cursor=pointer]:
+                - img [ref=e90]
+                - generic [ref=e93]:
+                  - generic [ref=e94]: 新建对话
+                  - generic [ref=e95]: 选择 Agent，开始 AI 对话
+                - img [ref=e97]
+              - generic [ref=e101] [cursor=pointer]:
+                - img [ref=e104]
+                - generic [ref=e107]:
+                  - generic [ref=e108]: 创作工坊
+                  - generic [ref=e109]: AI 视频创作，五步出片
+                - img [ref=e111]
+              - generic [ref=e115] [cursor=pointer]:
+                - img [ref=e118]
+                - generic [ref=e120]:
+                  - generic [ref=e121]: Agent 管理
+                  - generic [ref=e122]: 配置和部署你的 AI 助手
+                - img [ref=e124]
+          - generic [ref=e126]:
+            - heading "最近对话" [level=2] [ref=e128]
+            - generic [ref=e129]:
+              - img [ref=e132]
+              - paragraph [ref=e135]: 还没有对话记录
+              - button "开始第一段对话" [ref=e136] [cursor=pointer]:
+                - generic [ref=e137]: 开始第一段对话
+  - alert [ref=e138]:
+    - img [ref=e140]
+    - paragraph [ref=e142]: Request failed with status code 401

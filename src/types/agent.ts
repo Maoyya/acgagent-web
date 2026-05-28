@@ -7,6 +7,7 @@ export interface AgentVO {
   apiKey: string
   model: string
   status: number
+  category: 'CHAT' | 'VIDEO' | 'IMAGE'
   configJson: string | null
   createdAt: string
   updatedAt: string

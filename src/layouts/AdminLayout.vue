@@ -1,30 +1,87 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, type Component } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import ChatBubble from '@/components/ChatBubble.vue'
 import {
   Odometer,
   Monitor,
-  ChatDotRound,
   Film,
   FolderOpened,
   Setting,
   User,
   Lock,
   Key,
+  UserFilled,
   SwitchButton,
 } from '@element-plus/icons-vue'
+
+interface MenuItem {
+  index: string
+  title: string
+  icon: Component
+  roles?: string[]
+  children?: MenuItem[]
+}
 
 const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
 const sidebarCollapsed = ref(false)
+const showChatPanel = ref(false)
 
 const activeMenu = computed(() => route.path)
 
-function handleLogout() {
-  authStore.logout()
+/** 用户显示名：取昵称或用户名的首字符，大写 */
+const userDisplayName = computed(() => {
+  const name = authStore.userInfo?.nickname || authStore.userInfo?.username || ''
+  return name.charAt(0).toUpperCase()
+})
+
+/** 用户头像 URL，无头像时返回空字符串 */
+const userAvatarUrl = computed(() => authStore.userInfo?.avatar || '')
+
+/** 全部菜单项定义，roles 为空表示所有登录用户可见 */
+const allMenuItems: MenuItem[] = [
+  { index: '/dashboard', title: '概览', icon: Odometer },
+  { index: '/agents', title: 'Agent管理', icon: Monitor, roles: ['admin'] },
+  { index: '/workshop/new', title: '创作工坊', icon: Film },
+  { index: '/assets', title: '素材库', icon: FolderOpened },
+  {
+    index: 'system', title: '系统管理', icon: Setting, roles: ['admin'],
+    children: [
+      { index: '/system/users', title: '用户管理', icon: User },
+      { index: '/system/roles', title: '角色管理', icon: Lock },
+      { index: '/system/permissions', title: '权限管理', icon: Key },
+    ],
+  },
+  { index: '/profile', title: '个人中心', icon: UserFilled },
+]
+
+/** 根据当前用户角色过滤可见菜单项 */
+const visibleMenuItems = computed(() => {
+  const userRoles = authStore.userInfo?.roles || []
+  return allMenuItems.filter(item => {
+    if (!item.roles) return true
+    return item.roles.some(r => userRoles.includes(r))
+  })
+})
+
+/** 下拉菜单命令处理：退出登录或跳转个人中心 */
+function handleCommand(command: string) {
+  if (command === 'logout') {
+    authStore.logout()
+  } else if (command === 'profile') {
+    router.push('/profile')
+  }
 }
+
+/** 登录后若未拉取用户信息则自动获取 */
+onMounted(() => {
+  if (authStore.isLoggedIn && !authStore.userInfo) {
+    authStore.fetchUserInfo()
+  }
+})
 </script>
 
 <template>
@@ -44,46 +101,28 @@ function handleLogout() {
         text-color="rgba(255,255,255,0.7)"
         active-text-color="#ffffff"
       >
-        <el-menu-item index="/dashboard">
-          <el-icon><Odometer /></el-icon>
-          <template #title>概览</template>
-        </el-menu-item>
-        <el-menu-item index="/agents">
-          <el-icon><Monitor /></el-icon>
-          <template #title>Agent</template>
-        </el-menu-item>
-        <el-menu-item index="/chat">
-          <el-icon><ChatDotRound /></el-icon>
-          <template #title>对话</template>
-        </el-menu-item>
-        <el-divider style="border-color: rgba(255,255,255,0.1); margin: 8px 16px;" />
-        <el-menu-item index="/workshop/new">
-          <el-icon><Film /></el-icon>
-          <template #title>创作工坊</template>
-        </el-menu-item>
-        <el-menu-item index="/assets">
-          <el-icon><FolderOpened /></el-icon>
-          <template #title>素材库</template>
-        </el-menu-item>
-        <el-divider style="border-color: rgba(255,255,255,0.1); margin: 8px 16px;" />
-        <el-sub-menu index="system">
-          <template #title>
-            <el-icon><Setting /></el-icon>
-            <span>系统管理</span>
-          </template>
-          <el-menu-item index="/system/users">
-            <el-icon><User /></el-icon>
-            <template #title>用户管理</template>
+        <template v-for="item in visibleMenuItems" :key="item.index">
+          <!-- 有子菜单的项渲染为 el-sub-menu -->
+          <el-sub-menu v-if="item.children" :index="item.index">
+            <template #title>
+              <el-icon><component :is="item.icon" /></el-icon>
+              <span>{{ item.title }}</span>
+            </template>
+            <el-menu-item
+              v-for="child in item.children"
+              :key="child.index"
+              :index="child.index"
+            >
+              <el-icon><component :is="child.icon" /></el-icon>
+              <template #title>{{ child.title }}</template>
+            </el-menu-item>
+          </el-sub-menu>
+          <!-- 无子菜单的项渲染为 el-menu-item -->
+          <el-menu-item v-else :index="item.index">
+            <el-icon><component :is="item.icon" /></el-icon>
+            <template #title>{{ item.title }}</template>
           </el-menu-item>
-          <el-menu-item index="/system/roles">
-            <el-icon><Lock /></el-icon>
-            <template #title>角色管理</template>
-          </el-menu-item>
-          <el-menu-item index="/system/permissions">
-            <el-icon><Key /></el-icon>
-            <template #title>权限管理</template>
-          </el-menu-item>
-        </el-sub-menu>
+        </template>
       </el-menu>
     </el-aside>
 
@@ -100,14 +139,15 @@ function handleLogout() {
           </el-icon>
         </div>
         <div class="header-right">
-          <el-dropdown @command="handleLogout">
+          <el-dropdown @command="handleCommand">
             <span class="user-info">
-              <el-avatar :size="32" class="user-avatar">U</el-avatar>
-              <el-icon class="el-icon--right"><SwitchButton /></el-icon>
+              <el-avatar v-if="userAvatarUrl" :size="32" :src="userAvatarUrl" />
+              <el-avatar v-else :size="32" class="user-avatar">{{ userDisplayName }}</el-avatar>
             </span>
             <template #dropdown>
               <el-dropdown-menu>
-                <el-dropdown-item command="logout">退出登录</el-dropdown-item>
+                <el-dropdown-item command="profile">个人中心</el-dropdown-item>
+                <el-dropdown-item command="logout" divided>退出登录</el-dropdown-item>
               </el-dropdown-menu>
             </template>
           </el-dropdown>
@@ -118,6 +158,9 @@ function handleLogout() {
         <router-view />
       </el-main>
     </el-container>
+
+    <!-- 悬浮对话气泡 -->
+    <ChatBubble v-model:showPanel="showChatPanel" />
   </el-container>
 </template>
 

@@ -8,6 +8,8 @@ export interface UserVO {
   status: number
   createdAt: string
   updatedAt: string
+  roles: string[]
+  permissions: string[]
 }
 
 export interface CreateUserRequest {
@@ -25,4 +27,25 @@ export interface UpdateUserRequest {
   phone?: string
   avatar?: string
   status?: number
+}
+
+export interface ChangePasswordRequest {
+  oldPassword: string
+  newPassword: string
+  confirmPassword: string
+}
+
+export interface ChangePhoneRequest {
+  newPhone: string
+  verifyCode: string
+}
+
+export interface UpdateProfileRequest {
+  nickname?: string
+  email?: string
+}
+
+export interface WxBindStatus {
+  bound: boolean
+  openid: string | null
 }

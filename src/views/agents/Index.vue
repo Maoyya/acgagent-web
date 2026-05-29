@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, reactive } from 'vue'
 import { ElMessage } from 'element-plus'
 import type { FormInstance } from 'element-plus'
 import { getAgentList, createAgent, updateAgent, deleteAgent } from '@/api/agent'
-import type { AgentVO, CreateAgentRequest } from '@/types'
+import type { AgentVO, AgentCategory, CreateAgentRequest } from '@/types'
+import { AgentCategoryLabels } from '@/types'
 
 const agents = ref<AgentVO[]>([])
 const loading = ref(false)
@@ -11,6 +12,14 @@ const dialogVisible = ref(false)
 const dialogTitle = ref('新增 Agent')
 const editingId = ref<number | null>(null)
 const searchKeyword = ref('')
+const filterCategory = ref<AgentCategory | ''>('')
+
+/** 每个分类的折叠状态 */
+const collapsed = reactive<Record<AgentCategory, boolean>>({
+  CHAT: false,
+  VIDEO: false,
+  IMAGE: false,
+})
 
 const formRef = ref<FormInstance>()
 const formLoading = ref(false)
@@ -22,16 +31,34 @@ const form = ref({
   apiKey: '',
   model: '',
   status: true,
+  category: 'CHAT' as AgentCategory,
   configJson: '',
 })
 
 const filteredAgents = computed(() => {
-  if (!searchKeyword.value.trim()) return agents.value
-  const keyword = searchKeyword.value.trim().toLowerCase()
-  return agents.value.filter((a) => a.name.toLowerCase().includes(keyword))
+  let list = agents.value
+  if (filterCategory.value) {
+    list = list.filter((a) => a.category === filterCategory.value)
+  }
+  if (searchKeyword.value.trim()) {
+    const keyword = searchKeyword.value.trim().toLowerCase()
+    list = list.filter((a) => a.name.toLowerCase().includes(keyword))
+  }
+  return list
 })
 
-/** 获取 Agent 列表 */
+/** 按分类分组 */
+const groupedAgents = computed(() => {
+  const groups: { category: AgentCategory; label: string; agents: AgentVO[] }[] = []
+  for (const [cat, label] of Object.entries(AgentCategoryLabels)) {
+    const items = filteredAgents.value.filter((a) => a.category === cat)
+    if (items.length > 0 || !filterCategory.value) {
+      groups.push({ category: cat as AgentCategory, label, agents: items })
+    }
+  }
+  return groups
+})
+
 async function fetchAgents() {
   loading.value = true
   try {
@@ -42,8 +69,7 @@ async function fetchAgents() {
   }
 }
 
-/** 打开新增对话框 */
-function handleAdd() {
+function handleAdd(defaultCategory?: AgentCategory) {
   editingId.value = null
   dialogTitle.value = '新增 Agent'
   form.value = {
@@ -53,12 +79,12 @@ function handleAdd() {
     apiKey: '',
     model: '',
     status: true,
+    category: defaultCategory || 'CHAT',
     configJson: '',
   }
   dialogVisible.value = true
 }
 
-/** 打开编辑对话框 */
 function handleEdit(agent: AgentVO) {
   editingId.value = agent.id
   dialogTitle.value = '编辑 Agent'
@@ -69,12 +95,12 @@ function handleEdit(agent: AgentVO) {
     apiKey: '',
     model: agent.model,
     status: agent.status === 1,
+    category: agent.category,
     configJson: agent.configJson || '',
   }
   dialogVisible.value = true
 }
 
-/** 提交表单 */
 async function handleSubmit() {
   await formRef.value?.validate()
   formLoading.value = true
@@ -86,6 +112,7 @@ async function handleSubmit() {
       apiKey: form.value.apiKey || '******',
       model: form.value.model,
       status: form.value.status ? 1 : 0,
+      category: form.value.category,
       configJson: form.value.configJson || undefined,
     }
 
@@ -103,14 +130,12 @@ async function handleSubmit() {
   }
 }
 
-/** 删除 Agent */
 async function handleDelete(id: number) {
   await deleteAgent(id)
   ElMessage.success('删除成功')
   await fetchAgents()
 }
 
-/** 生成头像背景色，基于名字哈希 */
 function avatarColor(name: string): string {
   const colors = ['#e94560', '#00b894', '#6c5ce7', '#fdcb6e', '#74b9ff', '#a29bfe', '#fd79a8', '#00cec9']
   let hash = 0
@@ -118,6 +143,10 @@ function avatarColor(name: string): string {
     hash = name.charCodeAt(i) + ((hash << 5) - hash)
   }
   return colors[Math.abs(hash) % colors.length]
+}
+
+function toggleCollapse(category: AgentCategory) {
+  collapsed[category] = !collapsed[category]
 }
 
 fetchAgents()
@@ -132,50 +161,100 @@ fetchAgents()
           v-model="searchKeyword"
           placeholder="搜索 Agent 名称"
           clearable
-          style="width: 240px"
+          style="width: 200px"
         />
-        <el-button type="primary" @click="handleAdd">新增 Agent</el-button>
+        <el-select
+          v-model="filterCategory"
+          placeholder="全部分类"
+          clearable
+          style="width: 140px"
+        >
+          <el-option
+            v-for="(label, key) in AgentCategoryLabels"
+            :key="key"
+            :label="label"
+            :value="key"
+          />
+        </el-select>
+        <el-button type="primary" @click="handleAdd()">新增 Agent</el-button>
       </div>
     </div>
 
-    <!-- Agent 卡片网格 -->
-    <div v-loading="loading" class="agent-grid">
-      <template v-if="filteredAgents.length">
-        <el-card
-          v-for="agent in filteredAgents"
-          :key="agent.id"
-          class="agent-card"
-          shadow="hover"
-        >
-          <div class="card-body">
-            <div class="card-top">
-              <div
-                class="agent-avatar"
-                :style="{ background: avatarColor(agent.name) }"
-              >
-                {{ agent.name.charAt(0).toUpperCase() }}
-              </div>
-              <span :class="['status-dot', agent.status === 1 ? 'enabled' : 'disabled']" />
-            </div>
-            <div class="agent-name" :title="agent.name">{{ agent.name }}</div>
-            <div class="agent-desc" :title="agent.description || ''">
-              {{ agent.description || '暂无描述' }}
-            </div>
-            <el-tag size="small" type="info" class="model-tag">{{ agent.model }}</el-tag>
-          </div>
-          <div class="card-footer">
-            <el-button text size="small" @click="handleEdit(agent)">编辑</el-button>
-            <el-popconfirm title="确定删除该 Agent 吗？" @confirm="handleDelete(agent.id)">
-              <template #reference>
-                <el-button text size="small" type="danger">删除</el-button>
-              </template>
-            </el-popconfirm>
-          </div>
-        </el-card>
-      </template>
+    <div v-loading="loading">
+      <!-- 按分类分组展示 -->
+      <div
+        v-for="group in groupedAgents"
+        :key="group.category"
+        class="category-section"
+      >
+        <div class="category-header" @click="toggleCollapse(group.category)">
+          <el-icon class="collapse-icon" :class="{ rotated: !collapsed[group.category] }">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+              <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
+            </svg>
+          </el-icon>
+          <el-tag
+            :type="group.category === 'CHAT' ? 'success' : group.category === 'VIDEO' ? 'warning' : 'danger'"
+            size="large"
+            class="category-label"
+          >
+            {{ group.label }}
+          </el-tag>
+          <span class="category-count">{{ group.agents.length }}</span>
+          <el-button
+            text
+            size="small"
+            class="section-add-btn"
+            @click.stop="handleAdd(group.category)"
+          >
+            + 新增
+          </el-button>
+        </div>
 
-      <!-- 空状态 -->
-      <div v-if="!loading && !filteredAgents.length" class="empty-state">
+        <Transition name="section-collapse">
+          <div v-show="!collapsed[group.category]" class="category-body">
+            <div class="agent-grid">
+              <el-card
+                v-for="agent in group.agents"
+                :key="agent.id"
+                class="agent-card"
+                shadow="hover"
+              >
+                <div class="card-body">
+                  <div class="card-top">
+                    <div
+                      class="agent-avatar"
+                      :style="{ background: avatarColor(agent.name) }"
+                    >
+                      {{ agent.name.charAt(0).toUpperCase() }}
+                    </div>
+                    <span :class="['status-dot', agent.status === 1 ? 'enabled' : 'disabled']" />
+                  </div>
+                  <div class="agent-name" :title="agent.name">{{ agent.name }}</div>
+                  <div class="agent-desc" :title="agent.description || ''">
+                    {{ agent.description || '暂无描述' }}
+                  </div>
+                  <el-tag size="small" type="info">{{ agent.model }}</el-tag>
+                </div>
+                <div class="card-footer">
+                  <el-button text size="small" @click="handleEdit(agent)">编辑</el-button>
+                  <el-popconfirm title="确定删除该 Agent 吗？" @confirm="handleDelete(agent.id)">
+                    <template #reference>
+                      <el-button text size="small" type="danger">删除</el-button>
+                    </template>
+                  </el-popconfirm>
+                </div>
+              </el-card>
+            </div>
+            <div v-if="group.agents.length === 0" class="empty-hint">
+              该分类暂无 Agent
+            </div>
+          </div>
+        </Transition>
+      </div>
+
+      <!-- 全局空状态 -->
+      <div v-if="!loading && groupedAgents.length === 0" class="empty-state">
         <p>暂无 Agent，点击上方按钮创建</p>
       </div>
     </div>
@@ -230,6 +309,16 @@ fetchAgents()
         ]">
           <el-input v-model="form.model" placeholder="gpt-4o" maxlength="128" show-word-limit />
         </el-form-item>
+        <el-form-item label="分类" prop="category" :rules="[{ required: true, message: '请选择分类' }]">
+          <el-select v-model="form.category" placeholder="请选择分类">
+            <el-option
+              v-for="(label, key) in AgentCategoryLabels"
+              :key="key"
+              :label="label"
+              :value="key"
+            />
+          </el-select>
+        </el-form-item>
         <el-form-item label="状态">
           <el-switch v-model="form.status" active-text="启用" inactive-text="禁用" />
         </el-form-item>
@@ -279,11 +368,83 @@ fetchAgents()
   gap: 12px;
 }
 
+/* 分类分组 */
+.category-section {
+  margin-bottom: 20px;
+}
+
+.category-section:last-child {
+  margin-bottom: 0;
+}
+
+.category-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+  user-select: none;
+}
+
+.category-header:hover {
+  background: var(--color-bg);
+}
+
+.collapse-icon {
+  transition: transform 0.3s;
+  color: var(--color-text-secondary);
+}
+
+.collapse-icon.rotated {
+  transform: rotate(90deg);
+}
+
+.category-label {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.category-count {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  margin-left: 4px;
+}
+
+.section-add-btn {
+  margin-left: auto;
+  color: var(--color-primary);
+}
+
+.category-body {
+  padding: 12px 0 0;
+}
+
+.section-collapse-enter-active,
+.section-collapse-leave-active {
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.section-collapse-enter-from,
+.section-collapse-leave-to {
+  opacity: 0;
+  max-height: 0;
+  padding-top: 0;
+}
+
+.section-collapse-enter-to,
+.section-collapse-leave-from {
+  opacity: 1;
+  max-height: 2000px;
+}
+
+/* 卡片网格 */
 .agent-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 20px;
-  min-height: 200px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
 }
 
 .agent-card {
@@ -297,7 +458,7 @@ fetchAgents()
 }
 
 .agent-card :deep(.el-card__body) {
-  padding: 20px;
+  padding: 16px;
 }
 
 .card-body {
@@ -313,14 +474,14 @@ fetchAgents()
 }
 
 .agent-avatar {
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #fff;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 600;
   flex-shrink: 0;
 }
@@ -341,7 +502,7 @@ fetchAgents()
 }
 
 .agent-name {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
   color: var(--color-text);
   overflow: hidden;
@@ -360,21 +521,23 @@ fetchAgents()
   min-height: 39px;
 }
 
-.model-tag {
-  align-self: flex-start;
-}
-
 .card-footer {
   display: flex;
   justify-content: flex-end;
   gap: 4px;
-  padding-top: 12px;
+  padding-top: 10px;
   border-top: 1px solid var(--color-border);
-  margin-top: 12px;
+  margin-top: 8px;
+}
+
+.empty-hint {
+  padding: 24px;
+  text-align: center;
+  color: var(--color-text-secondary);
+  font-size: 13px;
 }
 
 .empty-state {
-  grid-column: 1 / -1;
   display: flex;
   justify-content: center;
   align-items: center;

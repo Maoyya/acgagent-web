@@ -1,8 +1,10 @@
 import request from '@/utils/request'
-import type { Result, AgentVO, CreateAgentRequest } from '@/types'
+import type { Result, AgentVO, AgentCategory, CreateAgentRequest } from '@/types'
 
-export function getAgentList() {
-  return request.get<Result<AgentVO[]>>('/agents')
+export function getAgentList(category?: AgentCategory) {
+  return request.get<Result<AgentVO[]>>('/agents', {
+    params: category ? { category } : undefined,
+  })
 }
 
 export function getAgent(id: number) {

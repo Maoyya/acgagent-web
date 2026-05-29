@@ -3,6 +3,7 @@ import { ref, computed, onMounted, type Component } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import ChatBubble from '@/components/ChatBubble.vue'
+import ChatPanel from '@/components/ChatPanel.vue'
 import {
   Odometer,
   Monitor,
@@ -159,8 +160,9 @@ onMounted(() => {
       </el-main>
     </el-container>
 
-    <!-- 悬浮对话气泡 -->
+    <!-- 悬浮对话气泡与面板 -->
     <ChatBubble v-model:showPanel="showChatPanel" />
+    <ChatPanel v-model:visible="showChatPanel" />
   </el-container>
 </template>
 

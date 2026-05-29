@@ -25,11 +25,6 @@ const agents = ref<AgentVO[]>([])
 const selectedAgentId = ref<number | null>(null)
 const loadingAgents = ref(false)
 
-// 只展示 category=CHAT 的 Agent
-const chatAgents = computed(() =>
-  agents.value.filter((a) => a.category === 'CHAT'),
-)
-
 // --- 对话列表与当前对话 ---
 const conversations = ref<ConversationVO[]>([])
 const currentConversationId = ref<number | null>(null)
@@ -62,7 +57,7 @@ onMounted(async () => {
 async function fetchAgents() {
   loadingAgents.value = true
   try {
-    const res = await getAgentList()
+    const res = await getAgentList('CHAT')
     agents.value = res.data.data ?? []
   } catch {
     ElMessage.error('加载 Agent 列表失败')
@@ -240,10 +235,11 @@ function onPanelClick(e: MouseEvent) {
               placeholder="选择 Agent"
               :loading="loadingAgents"
               clearable
+              :teleported="false"
               @change="onAgentChange"
             >
               <el-option
-                v-for="agent in chatAgents"
+                v-for="agent in agents"
                 :key="agent.id"
                 :label="agent.name"
                 :value="agent.id"
@@ -349,7 +345,7 @@ function onPanelClick(e: MouseEvent) {
   box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: visible;
 }
 
 /* 顶栏 */

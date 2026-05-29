@@ -1,6 +1,7 @@
 export type { Result } from './api'
 export type { LoginRequest, RegisterRequest, TokenVO, RefreshTokenRequest } from './auth'
-export type { AgentVO, CreateAgentRequest } from './agent'
+export type { AgentVO, AgentCategory, CreateAgentRequest } from './agent'
+export { AgentCategoryLabels } from './agent'
 export type {
   ConversationVO,
   MessageVO,

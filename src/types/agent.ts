@@ -13,6 +13,14 @@ export interface AgentVO {
   updatedAt: string
 }
 
+export type AgentCategory = 'CHAT' | 'VIDEO' | 'IMAGE'
+
+export const AgentCategoryLabels: Record<AgentCategory, string> = {
+  CHAT: '对话',
+  VIDEO: '视频',
+  IMAGE: '生图',
+}
+
 export interface CreateAgentRequest {
   name: string
   description?: string
@@ -21,5 +29,6 @@ export interface CreateAgentRequest {
   apiKey: string
   model: string
   status?: number
+  category?: AgentCategory
   configJson?: string
 }

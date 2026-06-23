@@ -11,3 +11,10 @@ export type {
 export type { UserVO, CreateUserRequest, UpdateUserRequest, ChangePasswordRequest, ChangePhoneRequest, UpdateProfileRequest, WxBindStatus } from './user'
 export type { RoleVO, CreateRoleRequest, UpdateRoleRequest } from './role'
 export type { PermissionVO, CreatePermissionRequest, UpdatePermissionRequest, PermissionTreeNode } from './permission'
+export type {
+  PromptMode, PromptTemplateVO, PromptGenerateResponseVO, PromptBeautifyResponseVO,
+  ModerationVerdictVO, CostEstimateVO,
+  PromptGenerateRequest, PromptBeautifyRequest, PromptModerateRequest, PromptEstimateRequest,
+  PromptTemplateRequest,
+} from './prompt'
+export { PromptModeLabels } from './prompt'

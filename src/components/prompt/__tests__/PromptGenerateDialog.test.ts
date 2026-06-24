@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { nextTick } from 'vue'
 import { mount } from '@vue/test-utils'
 import { http } from 'msw'
 import { server } from '@/__tests__/server'
@@ -50,5 +51,24 @@ describe('PromptGenerateDialog', () => {
     await (wrapper.vm as any).runGenerate()
     expect(wrapper.emitted('draft')).toBeUndefined()
     expect(vi.mocked(ElMessage.warning)).toHaveBeenCalled()
+  })
+
+  it('关闭事件触发 reset：phase 回 input，blocked 清空，重开不残留旧 verdict', async () => {
+    server.use(http.post('/api/prompts/generate', () => envelope(verdict, 403, 'blocked')))
+    const wrapper = mount(PromptGenerateDialog, { props: { modelValue: true } })
+    ;(wrapper.vm as any).fillInput('一些违规要求')
+    await (wrapper.vm as any).runGenerate()
+    expect((wrapper.vm as any).phase).toBe('blocked')
+    expect((wrapper.vm as any).blocked).not.toBeNull()
+    // el-dialog 的 close 事件（X / 取消 / 遮罩 / modelValue→false 均会触发）
+    // 在 jsdom 下不走动画，直接 emit close 验证 @close=reset 接线
+    await wrapper.findComponent({ name: 'ElDialog' }).vm.$emit('close')
+    await nextTick()
+    expect((wrapper.vm as any).phase).toBe('input')
+    expect((wrapper.vm as any).blocked).toBeNull()
+    // 重开：phase 仍为 input，不再呈现旧 verdict
+    await wrapper.setProps({ modelValue: true })
+    expect((wrapper.vm as any).phase).toBe('input')
+    expect((wrapper.vm as any).blocked).toBeNull()
   })
 })

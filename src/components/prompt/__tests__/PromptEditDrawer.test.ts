@@ -55,4 +55,19 @@ describe('PromptEditDrawer', () => {
     await (wrapper.vm as any).applyBeautify(1)
     expect((wrapper.vm as any).form.systemPrompt).toBe('润色后')
   })
+
+  it('seed.caps 流入 create body 的 targetCapabilities', async () => {
+    let capturedBody: any = null
+    server.use(http.post('/api/prompts/templates', async ({ request }) => {
+      capturedBody = await request.json()
+      return envelope(tpl, 200)
+    }))
+    const wrapper = mount(PromptEditDrawer, {
+      props: { modelValue: true, template: null, seed: { systemPrompt: '草稿', mode: 'acg', caps: ['chat', 'rag'] } },
+    })
+    expect((wrapper.vm as any).form.targetCapabilities).toBe('chat,rag')
+    ;(wrapper.vm as any).setName('带能力标签的模板')
+    await (wrapper.vm as any).runSave()
+    expect(capturedBody.targetCapabilities).toEqual(['chat', 'rag'])
+  })
 })

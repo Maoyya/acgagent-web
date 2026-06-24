@@ -22,6 +22,7 @@ const form = ref({
   name: '',
   systemPrompt: '',
   mode: 'acg' as PromptMode,
+  targetCapabilities: '',
   status: true,
   isPublic: false,
 })
@@ -51,6 +52,7 @@ function syncForm() {
       name: props.template.name,
       systemPrompt: props.template.systemPrompt,
       mode: props.template.mode,
+      targetCapabilities: props.template.targetCapabilities?.join(',') ?? '',
       status: props.template.status === 1,
       isPublic: props.template.userId === null,
     }
@@ -59,11 +61,12 @@ function syncForm() {
       name: '',
       systemPrompt: props.seed.systemPrompt,
       mode: props.seed.mode,
+      targetCapabilities: props.seed.caps?.join(',') ?? '',
       status: true,
       isPublic: false,
     }
   } else {
-    form.value = { name: '', systemPrompt: '', mode: 'acg', status: true, isPublic: false }
+    form.value = { name: '', systemPrompt: '', mode: 'acg', targetCapabilities: '', status: true, isPublic: false }
   }
 }
 watch(() => [props.template, props.seed], syncForm, { immediate: true })
@@ -77,10 +80,13 @@ async function handleSave() {
   saving.value = true
   gateVerdict.value = null
   try {
+    const caps = form.value.targetCapabilities
+      .split(',').map((s) => s.trim()).filter(Boolean)
     const body = {
       name: form.value.name,
       systemPrompt: form.value.systemPrompt,
       mode: form.value.mode,
+      targetCapabilities: caps.length ? caps : undefined,
       status: form.value.status ? 1 : 0,
       isPublic: isAdmin.value ? form.value.isPublic : undefined,
     }
@@ -155,6 +161,9 @@ defineExpose({
         <el-radio-group v-model="form.mode">
           <el-radio v-for="(label, key) in PromptModeLabels" :key="key" :value="key">{{ label }}</el-radio>
         </el-radio-group>
+      </el-form-item>
+      <el-form-item label="能力标签（可选，逗号分隔）">
+        <el-input v-model="form.targetCapabilities" placeholder="chat,rag" />
       </el-form-item>
       <el-form-item label="状态">
         <el-switch v-model="form.status" active-text="启用" inactive-text="禁用" />

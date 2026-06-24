@@ -75,6 +75,7 @@ defineExpose({
   blocked,
   fillInput: (text: string) => { hintsText.value = text },
   runGenerate: handleGenerate,
+  reset,
 })
 </script>
 
@@ -85,6 +86,7 @@ defineExpose({
     width="640px"
     destroy-on-close
     @update:model-value="emit('update:modelValue', $event)"
+    @close="reset"
   >
     <!-- 输入态 -->
     <template v-if="phase === 'input'">

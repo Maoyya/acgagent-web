@@ -14,7 +14,6 @@ import {
   Lock,
   Key,
   UserFilled,
-  SwitchButton,
   ChatLineSquare,
 } from '@element-plus/icons-vue'
 

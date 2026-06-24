@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { getTemplateList, deleteTemplate, applyTemplateToAgent } from '@/api/prompt'
 import { useAuthStore } from '@/stores/auth'
@@ -86,12 +86,18 @@ async function onApplyAgent(agentId: number) {
 }
 
 async function handleDelete(tpl: PromptTemplateVO) {
-  await deleteTemplate(tpl.id)
-  ElMessage.success('删除成功')
-  await fetchTemplates()
+  try {
+    await deleteTemplate(tpl.id)
+    ElMessage.success('删除成功')
+    await fetchTemplates()
+  } catch {
+    /* 拦截器已弹 */
+  }
 }
 
-fetchTemplates()
+onMounted(() => {
+  fetchTemplates()
+})
 </script>
 
 <template>

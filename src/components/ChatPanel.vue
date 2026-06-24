@@ -18,7 +18,7 @@ import type { AgentVO, ConversationVO, MessageVO } from '@/types'
 const props = defineProps<{ visible: boolean }>()
 const emit = defineEmits<{ 'update:visible': [value: boolean] }>()
 
-const { streaming, send, abort } = useSSE()
+const { streaming, send } = useSSE()
 
 // --- Agent 列表 ---
 const agents = ref<AgentVO[]>([])

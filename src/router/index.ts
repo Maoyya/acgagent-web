@@ -25,6 +25,7 @@ const router = createRouter({
         { path: '', redirect: '/dashboard' },
         { path: 'dashboard', name: 'Dashboard', component: () => import('@/views/Dashboard.vue') },
         { path: 'agents', name: 'Agents', component: () => import('@/views/agents/Index.vue'), meta: { roles: ['admin'] } },
+        { path: 'prompts', name: 'Prompts', component: () => import('@/views/prompts/Index.vue') },
         { path: 'workshop/:id', name: 'Workshop', component: () => import('@/views/workshop/Index.vue') },
         { path: 'assets', name: 'Assets', component: () => import('@/views/assets/Index.vue') },
         { path: 'profile', name: 'Profile', component: () => import('@/views/profile/Index.vue') },

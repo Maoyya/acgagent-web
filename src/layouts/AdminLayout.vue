@@ -15,6 +15,7 @@ import {
   Key,
   UserFilled,
   SwitchButton,
+  ChatLineSquare,
 } from '@element-plus/icons-vue'
 
 interface MenuItem {
@@ -46,6 +47,7 @@ const userAvatarUrl = computed(() => authStore.userInfo?.avatar || '')
 const allMenuItems: MenuItem[] = [
   { index: '/dashboard', title: '概览', icon: Odometer },
   { index: '/agents', title: 'Agent管理', icon: Monitor, roles: ['admin'] },
+  { index: '/prompts', title: '提示词模板', icon: ChatLineSquare },
   { index: '/workshop/new', title: '创作工坊', icon: Film },
   { index: '/assets', title: '素材库', icon: FolderOpened },
   {

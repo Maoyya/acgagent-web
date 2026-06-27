@@ -2,6 +2,8 @@
 
 记录 acgagent-web（前端）的变更。格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)。仅记录有意义的代码变更（新增功能、修 bug、行为变化、破坏性改动、chore）；纯格式 / 注释 / 重命名类改动不记。
 
+> **归档说明（2026-06-27）**：本文件为此日期前的历史记录（Keep-a-Changelog 单文件格式）。自 2026-06-27 起，变更改用「每次一篇深度文档」记录，见同目录下 `YYYY-MM-DD-<slug>.zh.md` 文件；本文件不再追加新条目。
+
 ## [Unreleased]
 
 ### Fixed

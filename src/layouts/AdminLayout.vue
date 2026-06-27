@@ -14,7 +14,6 @@ import {
   Lock,
   Key,
   UserFilled,
-  SwitchButton,
 } from '@element-plus/icons-vue'
 
 interface MenuItem {

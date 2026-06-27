@@ -68,7 +68,7 @@ onMounted(() => {
       </div>
       <div class="actions-grid">
         <div
-          v-for="(action, idx) in quickActions"
+          v-for="action in quickActions"
           :key="action.route"
           class="action-card"
           :style="{ '--card-delay': `${action.delay}s` }"

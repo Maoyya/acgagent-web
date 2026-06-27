@@ -28,3 +28,6 @@ dist
 
 # Test screenshots
 *.png
+
+# Playwright MCP 本地运行产物（页面快照、控制台日志）
+.playwright-mcp/

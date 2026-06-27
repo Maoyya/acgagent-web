@@ -1,4 +1,4 @@
-import md5 from 'js-md5'
+import { md5 } from 'js-md5'
 
 /**
  * 对密码进行 MD5 哈希，用于前端传输前的脱敏。

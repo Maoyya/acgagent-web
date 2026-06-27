@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import AdminLayout from '@/layouts/AdminLayout.vue'
 import { useAuthStore } from '@/stores/auth'
+import { isTokenExpired } from '@/utils/jwt'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -38,10 +39,20 @@ const router = createRouter({
 
 router.beforeEach(async (to) => {
   const token = localStorage.getItem('accessToken')
-  if (to.meta.requiresAuth !== false && !token) {
+  // token 有效：既存在又未过期。过期判定依据 JWT 的 exp，仅用于提前拦截
+  const tokenValid = !!token && !isTokenExpired(token)
+
+  // 需要鉴权的页面：无 token 或已过期 → 清理残留凭证并跳登录
+  if (to.meta.requiresAuth !== false && !tokenValid) {
+    if (token) {
+      // 过期 token 的清理策略与 request.ts 中 401 处理保持一致
+      localStorage.removeItem('accessToken')
+      localStorage.removeItem('refreshToken')
+    }
     return { name: 'Login', query: { redirect: to.fullPath } }
   }
-  if ((to.name === 'Login' || to.name === 'Register') && token) {
+  // 已登录（token 有效）用户访问登录/注册页 → 跳 dashboard
+  if ((to.name === 'Login' || to.name === 'Register') && tokenValid) {
     return { name: 'Dashboard' }
   }
 

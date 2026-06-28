@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { User, Lock } from '@element-plus/icons-vue'
 import type { FormInstance } from 'element-plus'
 
 const router = useRouter()
@@ -101,13 +102,7 @@ async function handleLogin() {
           @submit.prevent="handleLogin"
         >
           <div class="field-group">
-            <label class="field-label">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                <circle cx="12" cy="7" r="4"/>
-              </svg>
-              用户名
-            </label>
+            <label class="field-label">用户名</label>
             <el-form-item prop="username" :rules="[
               { required: true, message: '请输入用户名' },
               { min: 5, max: 50, message: '用户名长度为 5 ~ 50 个字符', trigger: 'blur' },
@@ -117,18 +112,16 @@ async function handleLogin() {
                 placeholder="输入你的用户名"
                 size="large"
                 maxlength="50"
-              />
+              >
+                <template #prefix>
+                  <el-icon><User /></el-icon>
+                </template>
+              </el-input>
             </el-form-item>
           </div>
 
           <div class="field-group">
-            <label class="field-label">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-              </svg>
-              密码
-            </label>
+            <label class="field-label">密码</label>
             <el-form-item prop="password" :rules="[
               { required: true, message: '请输入密码' },
               { min: 6, max: 256, message: '密码长度为 6 ~ 256 个字符', trigger: 'blur' },
@@ -140,7 +133,11 @@ async function handleLogin() {
                 size="large"
                 show-password
                 maxlength="256"
-              />
+              >
+                <template #prefix>
+                  <el-icon><Lock /></el-icon>
+                </template>
+              </el-input>
             </el-form-item>
           </div>
 
@@ -482,21 +479,16 @@ async function handleLogin() {
 }
 
 .field-group {
-  margin-bottom: 20px;
+  margin-bottom: 18px;
 }
 
 .field-label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  display: block;
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.55);
-  margin-bottom: 8px;
-  letter-spacing: 0.5px;
-}
-
-.field-label svg {
-  opacity: 0.6;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 10px;
+  letter-spacing: 1px;
 }
 
 .login-form :deep(.el-form-item) {
@@ -505,48 +497,80 @@ async function handleLogin() {
 
 .login-form :deep(.el-form-item__error) {
   color: #ff6b81;
-  padding-top: 4px;
+  padding-top: 6px;
   font-size: 12px;
 }
 
+/* 输入框：蚀刻玻璃质感 + 聚焦发光，避免在深色卡片上"看不见" */
 .login-form :deep(.el-input__wrapper) {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 10px;
-  box-shadow: none;
-  padding: 4px 14px;
-  transition: all 0.3s ease;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 2px 6px rgba(0, 0, 0, 0.25);
+  padding: 0 16px;
+  height: 52px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
 }
 
 .login-form :deep(.el-input__wrapper:hover) {
-  border-color: rgba(233, 69, 96, 0.3);
-  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.22);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
 }
 
 .login-form :deep(.el-input__wrapper.is-focus) {
-  border-color: rgba(233, 69, 96, 0.5);
-  background: rgba(255, 255, 255, 0.06);
-  box-shadow: 0 0 0 3px rgba(233, 69, 96, 0.1);
+  border-color: rgba(233, 69, 96, 0.6);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.04));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08),
+              0 0 0 4px rgba(233, 69, 96, 0.12),
+              0 0 22px rgba(233, 69, 96, 0.18);
 }
 
 .login-form :deep(.el-input__inner) {
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(255, 255, 255, 0.92);
   font-family: 'DM Sans', 'PingFang SC', sans-serif;
-  font-size: 14px;
+  font-size: 15px;
+  height: 52px;
+  line-height: 52px;
 }
 
 .login-form :deep(.el-input__inner::placeholder) {
-  color: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.38);
+}
+
+/* 浏览器自动填充会注入白底黑字，用深色内阴影覆盖以保持深色主题 */
+.login-form :deep(.el-input__inner:-webkit-autofill),
+.login-form :deep(.el-input__inner:-webkit-autofill:hover),
+.login-form :deep(.el-input__inner:-webkit-autofill:focus) {
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.92) !important;
+  caret-color: #fff;
+  -webkit-box-shadow: 0 0 0 1000px rgba(20, 20, 48, 0.6) inset;
+  transition: background-color 9999s ease-out;
+}
+
+/* 前置图标：默认暗淡，聚焦时点亮为珊瑚色 */
+.login-form :deep(.el-input__prefix-inner) {
+  margin-right: 10px;
+  color: rgba(255, 255, 255, 0.32);
+  font-size: 17px;
+  transition: color 0.3s ease;
+}
+
+.login-form :deep(.el-input__wrapper.is-focus .el-input__prefix-inner) {
+  color: #ff6b81;
 }
 
 .login-form :deep(.el-input__password) {
-  color: rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.login-form :deep(.el-input__password:hover) {
+  color: rgba(255, 255, 255, 0.65);
 }
 
 /* ===== 提交按钮 ===== */
 .submit-btn {
   width: 100%;
-  height: 46px;
+  height: 52px;
   border-radius: 12px;
   font-size: 15px;
   font-weight: 600;
@@ -574,7 +598,7 @@ async function handleLogin() {
 }
 
 .submit-btn:hover {
-  box-shadow: 0 6px 28px rgba(233, 69, 96, 0.45);
+  box-shadow: 0 8px 30px rgba(233, 69, 96, 0.5);
   transform: translateY(-1px);
 }
 

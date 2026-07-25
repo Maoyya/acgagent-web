@@ -3,7 +3,7 @@ import { http } from 'msw'
 import { server } from '../server'
 import { envelope } from '../handlers'
 import {
-  generatePrompt, beautifyPrompt,
+  beautifyPrompt,
   getTemplateList, createTemplate, updateTemplate,
   deleteTemplate, applyTemplateToAgent,
 } from '@/api/prompt'
@@ -18,13 +18,6 @@ const tpl = { id: 1, userId: 7, name: 'n', systemPrompt: 's', mode: 'acg' as con
 
 describe('api/prompt', () => {
   beforeEach(() => server.resetHandlers())
-
-  it('generatePrompt 携带 skipErrorHandler', async () => {
-    mock('POST', '/api/prompts/generate', { systemPrompt: 'x' }, 403)
-    // 403 不应抛（skipErrorHandler 生效）
-    const res = await generatePrompt({ userHints: ['a'], mode: 'acg' })
-    expect(res.data.code).toBe(403)
-  })
 
   it('createTemplate 携带 skipErrorHandler（保存闸门 403）', async () => {
     mock('POST', '/api/prompts/templates', tpl, 403)

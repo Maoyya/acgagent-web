@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { ElMessage } from 'element-plus'
-import { generatePrompt } from '@/api/prompt'
-import type { PromptMode, ModerationVerdictVO } from '@/types'
+import { generatePromptStream } from '@/api/prompt'
+import type { PromptMode } from '@/types'
 
 defineProps<{ modelValue: boolean }>()
 const emit = defineEmits<{
@@ -10,13 +10,16 @@ const emit = defineEmits<{
   draft: [d: { systemPrompt: string; mode: PromptMode; caps?: string[] }]
 }>()
 
-type Phase = 'input' | 'blocked'
+// generate 已不再返回 moderation/403-blocked（合规闸门移到保存时），故无 blocked 态
+type Phase = 'input' | 'streaming' | 'error'
 const phase = ref<Phase>('input')
 const generating = ref(false)
 const hintsText = ref('')
 const mode = ref<PromptMode>('acg')
 const capsText = ref('')
-const blocked = ref<ModerationVerdictVO | null>(null)
+// 流式累计的草稿文本，live-update 给用户看
+const draftSystemPrompt = ref('')
+const errorMsg = ref('')
 
 const userHints = computed(() =>
   hintsText.value.split('\n').map((s) => s.trim()).filter(Boolean),
@@ -31,26 +34,38 @@ async function handleGenerate() {
     return
   }
   generating.value = true
-  blocked.value = null
+  draftSystemPrompt.value = ''
+  errorMsg.value = ''
+  phase.value = 'streaming'
   try {
-    const res = await generatePrompt({
-      userHints: userHints.value,
-      mode: mode.value,
-      targetCapabilities: caps.value.length ? caps.value : undefined,
-    })
-    const env = res.data // skipErrorHandler 已开 → 完整信封
-    if (env.code === 200) {
-      const d = env.data
-      emit('draft', { systemPrompt: d.systemPrompt, mode: d.mode, caps: caps.value.length ? caps.value : undefined })
-      emit('update:modelValue', false)
-      reset()
-    } else if (env.code === 403) {
-      // 后端 403 信封 data 为 ModerationVerdictVO（generatePrompt 单一返回类型无法区分 code 分支）
-      blocked.value = env.data as unknown as ModerationVerdictVO
-      phase.value = 'blocked'
-    } else {
-      ElMessage.error(env.message || '生成失败')
-    }
+    await generatePromptStream(
+      {
+        userHints: userHints.value,
+        mode: mode.value,
+        targetCapabilities: caps.value.length ? caps.value : undefined,
+      },
+      (e) => {
+        if (e.type === 'content' && e.content) {
+          // 增量 token 累加，实时渲染
+          draftSystemPrompt.value += e.content
+        } else if (e.type === 'done') {
+          // 流结束：把累计草稿发给父组件（父组件打开编辑抽屉去保存）
+          emit('draft', {
+            systemPrompt: draftSystemPrompt.value,
+            mode: mode.value,
+            caps: caps.value.length ? caps.value : undefined,
+          })
+          emit('update:modelValue', false)
+          reset()
+        } else if (e.type === 'error') {
+          errorMsg.value = e.message || '生成失败'
+          phase.value = 'error'
+        }
+      },
+    )
+  } catch (err) {
+    errorMsg.value = (err as Error).message || '生成失败'
+    phase.value = 'error'
   } finally {
     generating.value = false
   }
@@ -60,18 +75,20 @@ function reset() {
   phase.value = 'input'
   hintsText.value = ''
   capsText.value = ''
-  blocked.value = null
+  draftSystemPrompt.value = ''
+  errorMsg.value = ''
 }
 
 function retry() {
   phase.value = 'input'
-  blocked.value = null
+  errorMsg.value = ''
 }
 
 // 测试钩子（defineExpose 不影响生产）
 defineExpose({
   phase,
-  blocked,
+  draftSystemPrompt,
+  errorMsg,
   fillInput: (text: string) => { hintsText.value = text },
   runGenerate: handleGenerate,
   reset,
@@ -104,20 +121,30 @@ defineExpose({
       </el-form>
     </template>
 
-    <!-- 被拦截态 -->
+    <!-- 流式生成中：实时显示累计草稿 -->
+    <template v-else-if="phase === 'streaming'">
+      <el-input
+        v-model="draftSystemPrompt"
+        type="textarea"
+        :rows="12"
+        readonly
+        resize="none"
+        placeholder="正在生成..."
+      />
+    </template>
+
+    <!-- 错误态 -->
     <template v-else>
-      <el-alert title="提示词未通过合规校验" type="error" :closable="false" show-icon />
-      <div v-if="blocked" class="verdict">
-        <p><b>违规规则：</b>{{ blocked.violatedRules.join('；') || '—' }}</p>
-        <p><b>原因：</b>{{ blocked.reasons.join('；') || '—' }}</p>
-        <p><b>置信度：</b>{{ Math.round(blocked.confidence * 100) }}%</p>
-      </div>
+      <el-alert :title="errorMsg" type="error" :closable="false" show-icon />
     </template>
 
     <template #footer>
       <template v-if="phase === 'input'">
         <el-button @click="emit('update:modelValue', false)">取消</el-button>
         <el-button type="primary" :loading="generating" @click="handleGenerate">生成</el-button>
+      </template>
+      <template v-else-if="phase === 'streaming'">
+        <el-button :loading="generating" disabled>生成中...</el-button>
       </template>
       <template v-else>
         <el-button type="primary" @click="retry">修改要求重试</el-button>
@@ -127,5 +154,4 @@ defineExpose({
 </template>
 
 <style scoped>
-.verdict { margin-top: 12px; font-size: 13px; line-height: 1.8; color: var(--color-text-secondary); }
 </style>

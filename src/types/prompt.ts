@@ -30,6 +30,14 @@ export interface PromptGenerateResponseVO {
   estimate: CostEstimateVO
 }
 
+/** generate 流式事件（SSE）：content=增量 token，done=结束+估算，error=中途失败 */
+export interface GenerateStreamEvent {
+  type: 'content' | 'done' | 'error'
+  content?: string
+  estimate?: CostEstimateVO
+  message?: string
+}
+
 /** beautify 响应（v1.1：润色后文本；字段名以后端最终 VO 为准，暂定 systemPrompt） */
 export interface PromptBeautifyResponseVO {
   systemPrompt: string

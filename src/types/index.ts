@@ -13,7 +13,7 @@ export type { RoleVO, CreateRoleRequest, UpdateRoleRequest } from './role'
 export type { PermissionVO, CreatePermissionRequest, UpdatePermissionRequest, PermissionTreeNode } from './permission'
 export type {
   PromptMode, PromptTemplateVO, PromptGenerateResponseVO, PromptBeautifyResponseVO,
-  ModerationVerdictVO, CostEstimateVO,
+  ModerationVerdictVO, CostEstimateVO, GenerateStreamEvent,
   PromptGenerateRequest, PromptBeautifyRequest, PromptModerateRequest, PromptEstimateRequest,
   PromptTemplateRequest,
 } from './prompt'

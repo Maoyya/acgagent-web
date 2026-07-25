@@ -29,13 +29,6 @@ describe('prompts Index', () => {
     expect((wrapper.vm as any).templates).toHaveLength(3)
   })
 
-  it('mode 筛选生效', async () => {
-    const wrapper = mount(PromptIndex)
-    await new Promise((r) => setTimeout(r, 0))
-    ;(wrapper.vm as any).filterMode = 'compliant'
-    expect((wrapper.vm as any).filteredTemplates.map((t: PromptTemplateVO) => t.id)).toEqual([2])
-  })
-
   it('canManage：自己的或公共(admin)可管理，他人私有不可', async () => {
     const store = useAuthStore()
     ;(store as any).userInfo = { id: 7, roles: ['user'] }

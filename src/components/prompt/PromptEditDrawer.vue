@@ -3,7 +3,6 @@ import { ref, computed, watch, nextTick } from 'vue'
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import { createTemplate, updateTemplate, beautifyPrompt, moderatePrompt, estimatePrompt } from '@/api/prompt'
 import { useAuthStore } from '@/stores/auth'
-import { PromptModeLabels } from '@/types'
 import type { PromptTemplateVO, PromptMode, ModerationVerdictVO, CostEstimateVO } from '@/types'
 import AgentSelectDialog from './AgentSelectDialog.vue'
 
@@ -156,11 +155,6 @@ defineExpose({
       </el-form-item>
       <el-form-item label="系统提示词" prop="systemPrompt">
         <el-input v-model="form.systemPrompt" type="textarea" :rows="10" placeholder="系统提示词正文" />
-      </el-form-item>
-      <el-form-item label="模式" prop="mode">
-        <el-radio-group v-model="form.mode">
-          <el-radio v-for="(label, key) in PromptModeLabels" :key="key" :value="key">{{ label }}</el-radio>
-        </el-radio-group>
       </el-form-item>
       <el-form-item label="能力标签（可选，逗号分隔）">
         <el-input v-model="form.targetCapabilities" placeholder="chat,rag" />

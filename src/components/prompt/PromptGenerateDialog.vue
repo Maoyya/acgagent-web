@@ -2,7 +2,6 @@
 import { ref, computed } from 'vue'
 import { ElMessage } from 'element-plus'
 import { generatePrompt } from '@/api/prompt'
-import { PromptModeLabels } from '@/types'
 import type { PromptMode, ModerationVerdictVO } from '@/types'
 
 defineProps<{ modelValue: boolean }>()
@@ -98,11 +97,6 @@ defineExpose({
             :rows="5"
             placeholder="要一个毒舌但专业的客服&#10;回答偏简洁"
           />
-        </el-form-item>
-        <el-form-item label="生成模式">
-          <el-radio-group v-model="mode">
-            <el-radio v-for="(label, key) in PromptModeLabels" :key="key" :value="key">{{ label }}</el-radio>
-          </el-radio-group>
         </el-form-item>
         <el-form-item label="能力标签（可选，逗号分隔）">
           <el-input v-model="capsText" placeholder="chat,rag" />

@@ -3,7 +3,6 @@ import { ref, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { getTemplateList, deleteTemplate, applyTemplateToAgent } from '@/api/prompt'
 import { useAuthStore } from '@/stores/auth'
-import { PromptModeLabels } from '@/types'
 import type { PromptTemplateVO, PromptMode } from '@/types'
 import PromptGenerateDialog from '@/components/prompt/PromptGenerateDialog.vue'
 import PromptEditDrawer from '@/components/prompt/PromptEditDrawer.vue'
@@ -16,11 +15,9 @@ const currentUserId = computed(() => authStore.userInfo?.id ?? null)
 const templates = ref<PromptTemplateVO[]>([])
 const loading = ref(false)
 const searchKeyword = ref('')
-const filterMode = ref<PromptMode | ''>('')
 
 const filteredTemplates = computed(() => {
   let list = templates.value
-  if (filterMode.value) list = list.filter((t) => t.mode === filterMode.value)
   if (searchKeyword.value.trim()) {
     const kw = searchKeyword.value.trim().toLowerCase()
     list = list.filter((t) => t.name.toLowerCase().includes(kw))
@@ -106,9 +103,6 @@ onMounted(() => {
       <h2 class="page-title">提示词模板</h2>
       <div class="toolbar">
         <el-input v-model="searchKeyword" placeholder="搜索名称" clearable style="width: 200px" />
-        <el-select v-model="filterMode" placeholder="全部模式" clearable style="width: 140px">
-          <el-option v-for="(label, key) in PromptModeLabels" :key="key" :label="label" :value="key" />
-        </el-select>
         <el-button @click="handleAdd">手动新建</el-button>
         <el-button type="primary" @click="generateVisible = true">生成提示词</el-button>
       </div>
@@ -118,9 +112,6 @@ onMounted(() => {
       <el-card v-for="tpl in filteredTemplates" :key="tpl.id" class="tpl-card" shadow="hover">
         <div class="tpl-head">
           <span class="tpl-name">{{ tpl.name }}</span>
-          <el-tag size="small" :type="tpl.mode === 'acg' ? 'success' : 'warning'">
-            {{ PromptModeLabels[tpl.mode] }}
-          </el-tag>
           <el-tag size="small" :type="tpl.userId === null ? 'danger' : 'info'">
             {{ tpl.userId === null ? '公共' : '私有' }}
           </el-tag>

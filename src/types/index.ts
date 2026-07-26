@@ -18,3 +18,4 @@ export type {
   PromptTemplateRequest,
 } from './prompt'
 export { PromptModeLabels } from './prompt'
+export * from './workshop'
